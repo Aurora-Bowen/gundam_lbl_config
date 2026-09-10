@@ -1,0 +1,75 @@
+####################################################################
+# Flux Parameters - SK flux, with a near-detector constraint emulated
+####################################################################
+#
+# The same fifty parameters, the same binning, the same names, in the same
+# order as configFluxParSet.yaml. One line differs: the matrix comes from
+# fluxCovHK_ND.root rather than fluxCovHK.root. Both are written by the same
+# MakeFluxCov call in MakeCovariances.C, so they cannot drift apart.
+#
+# The set is deliberately still called "Flux Parameters". These two files are
+# alternatives describing the same physical thing, and an identical set name
+# means every injector, scan and plot config works with either - the choice is
+# one comment character in configParSet.yaml and nothing else. The cost is that
+# a fit output does not say which was used, so pass --appendix when it matters:
+#
+#   gundamFitter -c config.yaml --appendix ndconstrained
+#
+# ---------------------------------------------------------------------------
+# What the constraint is
+#
+# There is no near-detector sample in this fit, so the correlations to the
+# ND280 half of the released matrix deliver nothing on their own - profiling
+# the ND280 parameters out returns the plain SK sub-block exactly, which is
+# what fluxCovHK.root already is. Getting a smaller error requires ND data,
+# not ND parameters.
+#
+# This file fakes that data. Giving ND280 a measurement of its own flux with
+# covariance alpha*A, the Gaussian posterior on the SK block is
+#
+#   Sigma(s) = C - s * B^T A^-1 B,     s = 1/(1+alpha)
+#            = (1-s) C + s (C - B^T A^-1 B)
+#
+# a convex combination of the unconstrained matrix and the perfect-near-
+# detector limit. It is a valid covariance for any s in [0,1] - it cannot be
+# tuned into something GUNDAM refuses to invert - and the pattern of which
+# bins tighten comes from the released correlations rather than being invented.
+#
+# At the s = 0.8 this file is built with, the fifty normalisations run 2.1% to
+# 7.4%, mean 3.6%, against 4.7% to 15.2%, mean 7.6% unconstrained. The peak FHC
+# numu bin goes 4.69% -> 2.14%. That is the right ballpark for a post-ND
+# analysis; T2K quotes about 3%.
+#
+# What it is not: a near-detector fit. A real one carries cross-section
+# parameters degenerate with flux, sees a different flux at a different
+# off-axis angle, and reports a correlated flux-plus-xsec constraint rather
+# than a flux one. Treat the difference between a fit with this file and one
+# with fluxCovHK.root as a bracket on how much the flux systematic costs, not
+# as a measurement of either end.
+#
+# To move s, change the 0.8 passed to MakeFluxCov in MakeCovariances.C and
+# rerun scripts/make_covariances.sh - both files are rewritten.
+# ---------------------------------------------------------------------------
+
+name: "Flux Parameters"
+isEnabled: true
+enableThrowToyParameters: false
+
+# A normalisation cannot be negative. At 1.0 with a 2-7% error these bounds sit
+# far out and never bind; they are there so a runaway step cannot flip the sign
+# of a sample.
+parametersRange: [ 0.0, 2.0 ]
+
+# No nominalStepSize. With a covariance present every parameter takes its width
+# from sqrt(diagonal), which is what scales the Minuit step - nominalStepSize is
+# only the fallback for a set that has no matrix.
+parameterDefinitionFilePath: "${data_dir}/parameters/flux/fluxCovHK_ND.root"
+covarianceMatrix:         flux_param_cov
+parameterNameList:        flux_param_names
+parameterPriorValueList:  flux_param_priors
+printDialSetSummary: true
+
+dialSetDefinitions:
+
+  - applyOnDataSets: [ "HK" ]
+    parametersBinningPath: "${data_dir}/parameters/flux/fluxBinning.txt"

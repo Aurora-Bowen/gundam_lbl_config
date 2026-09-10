@@ -1,0 +1,60 @@
+
+# Written into FitterEngine/preFit/plots and FitterEngine/postFit/samples
+
+
+histogramsDefinition:
+
+
+  - varToPlot: "Enu_rec"
+    prefix: "reconstructed"
+    useSampleBinning: true
+    xMax: 3.0
+    splitVarList: [ "RespCat", "flux_pdg" ]
+
+  # Reconstructed lepton momentum, analysis binning. The three e-like samples.
+  - varToPlot: "PLep_rec"
+    prefix: "reconstructed"
+    useSampleBinning: true
+    splitVarList: [ "RespCat", "flux_pdg" ]
+
+  # Second axis of every sample, so this one applies everywhere.
+  - varToPlot: "Theta_rec"
+    prefix: "reconstructed"
+    useSampleBinning: true
+    splitVarList: [ "RespCat" ]
+
+
+  - varToPlot: "Enu_true"
+    prefix: "true"
+    binning: "./inputs/output/binning_Enu_true.txt"
+    splitVarList: [ "RespCat", "flux_pdg" ]
+    noData: true
+
+
+varDictionaries:
+
+  - name: "RespCat"
+    dictionary:
+      - { value: 0, title: "#nu_{#mu} CCQE",           colorRoot: 862 }
+      - { value: 2, title: "#nu_{#mu} CC non-QE",      colorRoot: 866 }
+      - { value: 1, title: "#bar{#nu}_{#mu} CCQE",     colorRoot: 634 }
+      - { value: 3, title: "#bar{#nu}_{#mu} CC non-QE", colorRoot: 623 }
+      - { value: 4, title: "#nu_{e} CCQE",             colorRoot: 418 }
+      - { value: 6, title: "#nu_{e} CC non-QE",        colorRoot: 412 }
+      - { value: 5, title: "#bar{#nu}_{e} CCQE",       colorRoot: 882 }
+      - { value: 7, title: "#bar{#nu}_{e} CC non-QE",  colorRoot: 877 }
+      - { value: 8, title: "NC",                       colorRoot: 920 }
+
+  - name: "flux_pdg"
+    dictionary:
+      - { value:  14, title: "beam #nu_{#mu}",         colorRoot: 862 }
+      - { value: -14, title: "beam #bar{#nu}_{#mu}",   colorRoot: 634 }
+      - { value:  12, title: "beam #nu_{e}",           colorRoot: 418 }
+      - { value: -12, title: "beam #bar{#nu}_{e}",     colorRoot: 882 }
+
+
+canvasParameters:
+  height: 1400
+  width: 2400
+  nbXplots: 3
+  nbYplots: 2

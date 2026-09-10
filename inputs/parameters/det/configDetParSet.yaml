@@ -1,0 +1,80 @@
+####################################################################
+# Detector Parameters - one normalisation per sample
+####################################################################
+#
+# Five parameters, one per EventType, from arXiv:2505.15019 Tab. 3 "detector"
+# row, T2K-systematics column - the 1 sigma uncertainty on the number of events
+# expected in each sample after near-detector fitting:
+#
+#   DET_NORM_FHC_1RMU       EventType 0     2.1%
+#   DET_NORM_FHC_1RE_0DE    EventType 1     3.1%
+#   DET_NORM_FHC_1RE_1DE    EventType 2    13.2%
+#   DET_NORM_RHC_1RMU       EventType 3     1.9%
+#   DET_NORM_RHC_1RE_0DE    EventType 4     3.9%
+#
+# Both the matrix and the binning file are written by one run of MakeDetCov.C.
+# They have to be, because GUNDAM pairs dial i with parameter i by position and
+# sorts neither - editing one by hand desynchronises them silently.
+#
+# ---------------------------------------------------------------------------
+# What this can and cannot represent
+#
+# It scales samples. It cannot tilt a spectrum, because every dial is a plain
+# normalisation applied to every event in the sample regardless of energy. An
+# energy scale - the one far-detector systematic with a real handle in this
+# chain, since PLep_rec and Enu_rec exist - is deliberately not here: it moves
+# events between analysis bins rather than scaling them, so it cannot be a Norm
+# dial and needs a graph dial per bin built from the spectrum gradient.
+#
+# The five-parameter granularity is set by the source, not by taste. Tab. 3
+# gives five numbers. A finer binning in reconstructed energy would need an
+# assumption about how each sample's uncertainty distributes across its
+# spectrum, and that is in no public T2K release - the 2020 release is flux
+# only, and arXiv:2501.00147 documents the far-detector method while releasing
+# no matrix.
+#
+# ---------------------------------------------------------------------------
+# The matrix is diagonal, and that is a choice worth revisiting
+#
+# Tab. 3 also carries an FHC/RHC 1Re ratio column, which is a measurement of
+# the correlation rather than of a size. Fractional errors subtract in a ratio,
+# so sigma_ratio^2 = sigma_FHC^2 + sigma_RHC^2 - 2 rho sigma_FHC sigma_RHC, and
+# the detector row's 3.1%, 3.9% and 1.1% invert to rho = 0.98. The improved
+# column gives 1.00; the flux-xsec row gives 0.39.
+#
+# That is likely to matter more than any diagonal entry here. delta_CP comes
+# from the nu/nubar appearance asymmetry, so a detector error common to FHC 1Re
+# and RHC 1Re cancels in the ratio and costs nearly nothing, while an
+# uncorrelated one does not cancel at all. Diagonal is therefore the pessimistic
+# end, not the neutral one.
+#
+# To switch, rerun with rho and reload - nothing in this file changes:
+#
+#   root -l -b -q 'MakeDetCov.C(0.98)'
+#
+# Fitting both ends brackets what the detector systematic costs. Pass --appendix
+# to tell the outputs apart, since the file name does not record rho.
+# ---------------------------------------------------------------------------
+
+name: "Detector Parameters"
+isEnabled: true
+enableThrowToyParameters: false
+
+# A normalisation cannot be negative. At 1.0 with a 2-13% error these bounds sit
+# far out and never bind; they are there so a runaway step cannot flip the sign
+# of a sample.
+parametersRange: [ 0.0, 2.0 ]
+
+# No nominalStepSize. With a covariance present every parameter takes its width
+# from sqrt(diagonal), which is what scales the Minuit step - nominalStepSize is
+# only the fallback for a set that has no matrix.
+parameterDefinitionFilePath: "${data_dir}/parameters/det/detCovHK.root"
+covarianceMatrix:         det_param_cov
+parameterNameList:        det_param_names
+parameterPriorValueList:  det_param_priors
+printDialSetSummary: true
+
+dialSetDefinitions:
+
+  - applyOnDataSets: [ "HK" ]
+    parametersBinningPath: "${data_dir}/parameters/det/detBinning.txt"

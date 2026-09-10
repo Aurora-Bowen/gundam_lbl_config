@@ -1,0 +1,10 @@
+# Override file that swaps Minuit for the grid search.
+#
+#   gundamFitter -c config.yaml -of ./inputs/fitter/useGridSearch.yaml
+#
+# Merged onto the unfolded configMinimizer.yaml, so its Minuit-only keys survive
+# and MinimizerBase::initializeImpl prints one "key ... was ignored" line for
+# each. Warnings, not errors.
+
+fitterEngineConfig:
+  minimizerConfig: "./inputs/fitter/configGridSearch.yaml"

@@ -1,0 +1,52 @@
+# Minimizer card for the grid search. Replaces configMinimizer.yaml through
+# useGridSearch.yaml, the same way configMCMC.yaml does.
+#
+# 51 x 48 x 41 = 100368 nodes. Every node freezes the three parameters below at
+# their grid values and minimises the other 73 around them.
+
+type: "GridSearch"
+
+minimizer: "Minuit2"
+algorithm: "Migrad"
+strategy: 0
+tolerance: 1
+print_level: 0
+
+# Each node starts from the previous one's minimum, 
+# serpentine ordering keeps consecutive nodes adjacent
+warmStart: true
+serpentine: true
+
+# fit from prior when next node is this much different from last node
+coldRefitThreshold: 5.0
+
+# nodes to fit. Inject with: 
+#   -O /fitterEngineConfig/minimizerConfig/firstNode=$((SLURM_ARRAY_TASK_ID * 1968))
+#   -O /fitterEngineConfig/minimizerConfig/nNodes=1968
+firstNode: 0
+nNodes: 100368
+
+saveParameterVector: true
+
+
+gridParameters:
+
+  - parameterSetName: "Oscillation Parameters"
+    parameterName: "PMNS_SIN_SQUARED_23"
+    min: 0.300
+    max: 0.700
+    nSteps: 51
+
+
+  - parameterSetName: "Oscillation Parameters"
+    parameterName: "PMNS_DELTA_CP"
+    min: -3.14159265359
+    max: 3.01069295969
+    nSteps: 48
+
+
+  - parameterSetName: "Oscillation Parameters"
+    parameterName: "PMNS_DELTA_MASS_SQUARED_32"
+    min: 2.449E-3
+    max: 2.569E-3
+    nSteps: 41

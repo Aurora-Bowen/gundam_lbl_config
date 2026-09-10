@@ -1,0 +1,2 @@
+fitterEngineConfig:
+  minimizerConfig: "./inputs/fitter/configGrid1D_dcp.yaml"

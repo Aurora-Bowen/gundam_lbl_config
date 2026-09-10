@@ -1,0 +1,22 @@
+# Profile point: PMNS_SIN_SQUARED_23 = 0.652
+# See README.md in this folder for what the two blocks below do.
+
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    propagatorConfig:
+
+      # Hold this one still.
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            parameterDefinitions:
+              - name: "PMNS_SIN_SQUARED_23"
+                isFrozen: true
+
+      # Put it at the scan point.
+      parameterInjection:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            parameterValues:
+              - name: "PMNS_SIN_SQUARED_23"
+                value: 0.652

@@ -1,0 +1,13 @@
+# Configure the propagator
+
+showNbEventParameterBreakdown: true
+showNbEventPerSampleParameterBreakdown: true
+
+debugPrintLoadedEvents: false
+debugPrintLoadedEventsNbPerSample: 10
+devSingleThreadReweight: false
+devSingleThreadHistFill: false
+
+sampleSetConfig:        "./inputs/samples/configSamples.yaml"
+parametersManagerConfig:
+  parameterSetList:     "./inputs/parameters/configParSet.yaml"

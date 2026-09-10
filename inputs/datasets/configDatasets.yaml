@@ -1,0 +1,73 @@
+# ------------------------
+# Dataset definition
+# ------------------------
+#
+# One dataset holding both beam modes. FakeSelect writes an isRHC branch per
+# event precisely so this can be done: the two files get chained and nothing in
+# a chained tree remembers which file it came from.
+#
+# Every event FakeSelect wrote is here, including the ones it rejected
+# (EventType == -2). The sample selection cuts them out, which keeps the
+# rejected events available for checking what the response threw away.
+
+- name: "HK"
+  isEnabled: true
+
+  showSelectedEventCount: true
+
+  selectedDataEntry: "Asimov"
+
+  model:
+
+    tree: "FakeSelect"
+
+    filePathList:
+      - "${data_dir}/fakeselect_FHC.root"
+      - "${data_dir}/fakeselect_RHC.root"
+
+    # Leaves to keep in memory beyond those used by the cuts and the binning,
+    # so they are available for plotting and for breakdowns.
+    additionalLeavesStorage:
+      - "EventType"
+      - "SampleIndex"
+      - "RespCat"
+      - "flux_pdg"
+      - "PDGnu"
+      - "cc"
+      - "isRHC"
+      - "Enu_true"
+      - "Enu_rec"
+      - "PLep_rec"
+      - "CosLep_rec"
+      - "Theta_rec"
+      - "recon_ME"
+      - "POTWeight"
+      - "SelEffWeight"
+      - "OscWeight"
+
+    # Base weight, multiplied together. OscWeight is deliberately NOT here:
+    # oscillation is applied by the tabulated NuOscillator dials in
+    # configParSet.yaml,
+    # and including it as well would apply the survival probability twice.
+    #
+    # The third line drops neutral-current events out of the two appearance
+    # files. Those files exist only to carry the appeared charged-current
+    # signal; their neutral-current events are the same physical population as
+    # the ones in the intrinsic file built on the same flux, because the
+    # neutral-current cross section is flavour blind. FakeRecon expressed this
+    # by setting OscWeight to zero for them, which stops working the moment
+    # OscWeight leaves the weight chain - so it is restated here.
+    nominalWeightFormula:
+      - "POTWeight"
+      - "SelEffWeight"
+      - "(cc != 0 || SampleIndex < 4) ? 1.0 : 0.0"
+
+  # No data entry. "Asimov" above is GUNDAM's built-in dispenser: it takes the
+  # model with every dial at its prior. The priors in configParSet.yaml are the
+  # parameters the events were generated at, so that is already the Asimov set
+  # at the true point, and a hand-built data entry weighted by OscWeight would
+  # be the same numbers arrived at twice. OscWeight stays on the tree as an
+  # independent check that the dials reproduce what FakeRecon computed.
+  #
+  # "Asimov" is a reserved name - a data entry called that collides with the
+  # built-in one and GUNDAM stops.

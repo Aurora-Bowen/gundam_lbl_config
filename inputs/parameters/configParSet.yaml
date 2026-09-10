@@ -1,0 +1,282 @@
+####################################################################
+# The parameter sets. Oscillation first, then the systematics.
+####################################################################
+#
+# This file is the list GUNDAM reads through parameterSetList.
+
+# Requires libTabulatedNuOscillator.so, which is not part of GUNDAM. Build it
+# with, from a checkout of gundamOscAnaTools and with gundamFitter on PATH:
+#   git submodule update
+#   (cd gundamOscAnaTools/resources/TabulateNuOscillator; bash compile.sh)
+# and point NUOSCILLATOR_ROOT at the result.
+
+- name: "Oscillation Parameters"
+  isEnabled: true
+  enableThrowToyParameters: false
+  nominalStepSize: 1.0
+
+  parameterDefinitionFilePath: "${data_dir}/parameters/oscProb/oscCovHK.root"
+  covarianceMatrix:         osc_param_cov
+  parameterNameList:        osc_param_names
+  parameterPriorValueList:  osc_param_priors
+  printDialSetSummary: true
+
+  parameterDefinitions:
+
+    # external constrained:
+    - name: "PMNS_SIN_SQUARED_12"
+      isEnabled: true
+      priorValue: 0.307
+      priorType: Gaussian
+      parameterStepSize: 0.01
+      parameterLimits: [ 0.0, 1.0 ]
+
+    - name: "PMNS_DELTA_MASS_SQUARED_21"
+      isEnabled: true
+      priorValue: 7.53E-5
+      priorType: Gaussian
+      parameterStepSize: 2.0E-6
+
+
+    - name: "PMNS_SIN_SQUARED_13"
+      isEnabled: true
+      priorValue: 0.0218
+      priorType: Gaussian
+      parameterStepSize: 0.0007
+      parameterLimits: [ 0.0, 0.1 ]
+
+    # should be measured:
+
+    - name: "PMNS_SIN_SQUARED_23"
+      isEnabled: true
+      priorValue: 0.528
+      priorType: Flat
+      parameterStepSize: 0.04
+      parameterLimits: [ 0.3, 0.7 ]
+
+    - name: "PMNS_DELTA_MASS_SQUARED_32"
+      isEnabled: true
+      priorValue: 2.509E-3
+      priorType: Flat
+      parameterStepSize: 2.6E-5
+      parameterLimits: [ 2.0E-3, 3.0E-3 ]
+
+    - name: "PMNS_DELTA_CP"
+      isEnabled: true
+      priorValue: -1.601
+      priorType: Flat
+      parameterStepSize: 0.2
+      cyclicRange: [ -3.14159265359, 3.14159265359 ]
+
+    # Mass ordering. IsFixed so that Minimizer does not try to vary it.
+    - name: "PMNS_SIGN_MASS_SQUARED_32"
+      isEnabled: true
+      isFixed: true
+      priorValue: 1.0
+      priorType: Flat
+      parameterStepSize: 0.5
+      parameterLimits: [ -1.0, 1.0 ]
+
+  dialSetDefinitions:
+
+  # A "dial" is something that changes the event rate FOR the parameter
+
+  #######################################################################
+  # numu flux
+  #######################################################################
+  # makes a tabulated dial (since the dial needs to run NuOscillator to get updated event rate after oscillation)
+    - dialType: Tabulated
+      applyOnDataSets: [ "HK" ]
+      # applies only on numu x numu events
+      applyCondition: "[cc] != 0 && [flux_pdg] == 14 && [PDGnu] == 14"
+      # all 7 PNMS parameters affect oscillated event rate
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      # A tabulated dial needs a "table" with a name
+      tableConfig:
+        name: "Tabulated numu to numu NuOscillator"
+        # finds NuOscillator
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        # What functions to call with what baseline and stuff
+        initFunction: "initializeTable"
+        # flux flavor and interaction flavor should be different for each nu x nu file
+        initArguments:
+          - "FLUX_FLAVOR muon"
+          - "INTERACTION_FLAVOR muon"
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 295.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ${data_dir}/parameters/oscProb/grid_HK.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Enu_true"
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "HK" ]
+      applyCondition: "[cc] != 0 && [flux_pdg] == 14 && [PDGnu] == 12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu to nue NuOscillator"
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR muon"
+          - "INTERACTION_FLAVOR electron"
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 295.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ${data_dir}/parameters/oscProb/grid_HK.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Enu_true"
+
+  #######################################################################
+  # numu-bar flux
+  #######################################################################
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "HK" ]
+      applyCondition: "[cc] != 0 && [flux_pdg] == -14 && [PDGnu] == -14"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to numu-bar NuOscillator"
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"
+          - "INTERACTION_FLAVOR anti-muon"
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 295.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ${data_dir}/parameters/oscProb/grid_HK.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Enu_true"
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "HK" ]
+      applyCondition: "[cc] != 0 && [flux_pdg] == -14 && [PDGnu] == -12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated numu-bar to nue-bar NuOscillator"
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-muon"
+          - "INTERACTION_FLAVOR anti-electron"
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 295.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ${data_dir}/parameters/oscProb/grid_HK.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Enu_true"
+
+  #######################################################################
+  # Intrinsic beam nue and nue-bar. Survival only: we generated no
+  # nue -> numu or nue -> nutau samples, so there is nothing else to weight.
+  #######################################################################
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "HK" ]
+      applyCondition: "[cc] != 0 && [flux_pdg] == 12 && [PDGnu] == 12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue to nue NuOscillator"
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR electron"
+          - "INTERACTION_FLAVOR electron"
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 295.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ${data_dir}/parameters/oscProb/grid_HK.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Enu_true"
+
+    - dialType: Tabulated
+      applyOnDataSets: [ "HK" ]
+      applyCondition: "[cc] != 0 && [flux_pdg] == -12 && [PDGnu] == -12"
+      dialInputList:
+        - name: "PMNS_SIN_SQUARED_12"
+        - name: "PMNS_SIN_SQUARED_13"
+        - name: "PMNS_SIN_SQUARED_23"
+        - name: "PMNS_DELTA_MASS_SQUARED_21"
+        - name: "PMNS_DELTA_MASS_SQUARED_32"
+        - name: "PMNS_DELTA_CP"
+        - name: "PMNS_SIGN_MASS_SQUARED_32"
+      tableConfig:
+        name: "Tabulated nue-bar to nue-bar NuOscillator"
+        libraryPath: "${NUOSCILLATOR_ROOT}/lib/libTabulatedNuOscillator.so"
+        initFunction: "initializeTable"
+        initArguments:
+          - "FLUX_FLAVOR anti-electron"
+          - "INTERACTION_FLAVOR anti-electron"
+          - "PARAMETERS SS12,SS13,SS23,DM21,DM32,DCP,SIGN32"
+          - "PATH 295.0"
+          - "CONFIG ./inputs/parameters/oscProb/GUNDAM_NuFASTLinear.config"
+          - "BINNING_FILE ${data_dir}/parameters/oscProb/grid_HK.root"
+          - "BINNING_HIST energyBinning"
+        updateFunction: "updateTable"
+        binningFunction: "binTable"
+        binningVariables:
+          - "Enu_true"
+
+####################################################################
+# Systematics. One file per set, each holding a single mapping.
+####################################################################
+
+# Flux:
+- "./inputs/parameters/flux/configFluxParSet.yaml"
+
+# Detector:
+- "./inputs/parameters/det/configDetParSet.yaml"
+
+# Cross-section: 
+- "./inputs/parameters/xsec/configXsecParSet.yaml"

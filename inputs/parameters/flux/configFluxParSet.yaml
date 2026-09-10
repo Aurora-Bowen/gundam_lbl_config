@@ -1,0 +1,64 @@
+####################################################################
+# Flux Parameters - SK flux normalisations, T2K 2020 public release
+####################################################################
+#
+# Fifty normalisations, one per (beam mode, flux flavour, true energy) cell,
+# prior 1.0, correlated through the released fractional covariance. Both the
+# matrix and the binning are written by MakeCovariances.C from the T2K 2020
+# public flux covariance, and they have to be written together: GUNDAM pairs dial i of a
+# parametersBinningPath collection with parameter i by position, so the order
+# of the lines in fluxBinning.txt is the order of the rows in flux_param_cov.
+# Nothing sorts either of them.
+#
+# Sizes are 5-15% per bin, smallest at the flux peak (4.7% for the FHC numu
+# 0.6-0.7 GeV bin) and largest in the tails (15.2% for RHC nueb above 4 GeV).
+# That is the far-detector flux uncertainty with no near detector in the fit -
+# the released matrix also covers ND280 and the correlations between the two
+# halves are what a real analysis uses to pull these down to a few percent.
+# Only the SK half is taken here, which is a marginalisation, so what is left
+# is a valid covariance describing a genuinely unconstrained beam.
+#
+# ---------------------------------------------------------------------------
+# What the dial does
+#
+# One Norm dial per bin, so the weight of an event is multiplied by the value
+# of the parameter whose bin it falls in. The bin is matched on isRHC and
+# flux_pdg exactly and on Enu_true as a range, so it is a weight on the
+# neutrino before it interacts. It applies to charged and neutral current
+# alike - the flux does not know what the neutrino is about to do - and to
+# appeared nue as well, because FakeSelect sets flux_pdg from the input file
+# rather than from the interaction, so an appeared nue still carries 14 and is
+# normalised by the numu flux that produced it.
+#
+# There is no dialType key. A dial collection carrying parametersBinningPath
+# is resolved by DialCollection::initializeNormDialsWithParBinning() before
+# dialType is ever read, and it builds Norm dials by construction.
+#
+# The penalty is Gaussian and correlated: priorType defaults to Gaussian for
+# parameters that come out of a covariance file, so all fifty carry a penalty
+# term and the fit pays for shifting them, one against another, through the
+# inverse of flux_param_cov.
+# ---------------------------------------------------------------------------
+
+name: "Flux Parameters"
+isEnabled: true
+enableThrowToyParameters: false
+
+# A normalisation cannot be negative. At 1.0 with a 5-15% error these bounds
+# sit more than ten sigma out and never bind; they are there so a runaway step
+# cannot flip the sign of a sample.
+parametersRange: [ 0.0, 2.0 ]
+
+# No nominalStepSize. With a covariance present every parameter takes its width
+# from sqrt(diagonal), which is what scales the Minuit step - nominalStepSize is
+# only the fallback for a set that has no matrix.
+parameterDefinitionFilePath: "${data_dir}/parameters/flux/fluxCovHK.root"
+covarianceMatrix:         flux_param_cov
+parameterNameList:        flux_param_names
+parameterPriorValueList:  flux_param_priors
+printDialSetSummary: true
+
+dialSetDefinitions:
+
+  - applyOnDataSets: [ "HK" ]
+    parametersBinningPath: "${data_dir}/parameters/flux/fluxBinning.txt"

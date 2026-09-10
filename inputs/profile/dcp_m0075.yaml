@@ -1,0 +1,22 @@
+# Profile point: PMNS_DELTA_CP = -0.13089969390
+# See README.md in this folder for what the two blocks below do.
+
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    propagatorConfig:
+
+      # Hold this one still.
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            parameterDefinitions:
+              - name: "PMNS_DELTA_CP"
+                isFrozen: true
+
+      # Put it at the scan point.
+      parameterInjection:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            parameterValues:
+              - name: "PMNS_DELTA_CP"
+                value: -0.13089969390

@@ -1,0 +1,32 @@
+# One-dimensional grid in dm^2(32). delta-CP and sin^2(theta23) are left free,
+# so Migrad profiles them rather than the grid.
+#
+# The 50 nodes are the same points as inputs/profile/dm32_*.yaml. This range is
+# far wider and coarser than the 3D grid's: 2.000E-3 to 2.980E-3 in steps of
+# 2.0E-5, against 2.449E-3 to 2.569E-3 in steps of 3.0E-6.
+
+type: "GridSearch"
+
+minimizer: "Minuit2"
+algorithm: "Migrad"
+
+strategy: 0
+tolerance: 1
+print_level: 0
+
+warmStart: true
+serpentine: true
+coldRefitThreshold: 5.0
+
+firstNode: 0
+nNodes: 50
+
+saveParameterVector: true
+
+gridParameters:
+
+  - parameterSetName: "Oscillation Parameters"
+    parameterName: "PMNS_DELTA_MASS_SQUARED_32"
+    min: 2.000E-3
+    max: 2.980E-3
+    nSteps: 50

@@ -1,0 +1,17 @@
+type: "RootMinimizer"
+minimizer: "Minuit2"
+algorithm: "Migrad"
+errors: "Hesse"
+print_level: 1
+
+# Help Migrad find the basin first. delta-CP is cyclic and sin^2(theta23) has
+# an octant ambiguity, so the likelihood has more than one local minimum and
+# Migrad on its own can settle in the wrong one.
+enableSimplexBeforeMinimize: true
+simplexMaxFcnCalls: 20000
+simplexToleranceLoose: 10000
+simplexStrategy: 1
+enablePostFitErrorFit: true
+
+tolerance: 1E-2
+strategy: 1

@@ -1,0 +1,32 @@
+# One-dimensional grid in sin^2(theta23). delta-CP and dm^2(32) are left free,
+# so Migrad profiles them rather than the grid.
+#
+# The 50 nodes are the same points as inputs/profile/sin23_*.yaml. Note this
+# stops at 0.692, two nodes short of the 3D grid's 0.700, because the profile
+# scan did.
+
+type: "GridSearch"
+
+minimizer: "Minuit2"
+algorithm: "Migrad"
+
+strategy: 0
+tolerance: 1
+print_level: 0
+
+warmStart: true
+serpentine: true
+coldRefitThreshold: 5.0
+
+firstNode: 0
+nNodes: 50
+
+saveParameterVector: true
+
+gridParameters:
+
+  - parameterSetName: "Oscillation Parameters"
+    parameterName: "PMNS_SIN_SQUARED_23"
+    min: 0.300
+    max: 0.692
+    nSteps: 50

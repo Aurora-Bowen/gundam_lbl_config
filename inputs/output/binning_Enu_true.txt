@@ -1,0 +1,20 @@
+# True neutrino energy, for the plot generator only. Not a sample binning and
+# not a parameter binning - nothing in the fit reads this.
+#
+
+
+# One variable only. PlotGenerator.cpp:850 throws if an explicit plot binning
+# names more than one, which is why this cannot just point at fluxBinning.txt.
+
+variables: Enu_true Enu_true
+   0.0000    0.4000
+   0.4000    0.5000
+   0.5000    0.6000
+   0.6000    0.7000
+   0.7000    1.0000
+   1.0000    1.5000
+   1.5000    2.5000
+   2.5000    3.5000
+   3.5000    5.0000
+   5.0000    7.0000
+   7.0000   30.0000

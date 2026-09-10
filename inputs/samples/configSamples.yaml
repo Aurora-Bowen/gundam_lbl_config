@@ -1,0 +1,44 @@
+# ------------------------
+# Samples
+# ------------------------
+#
+
+sampleList:
+
+  ##########################
+  # nu mode
+  ##########################
+
+  - name: "FHC 1R#mu"
+    isEnabled: true
+    binning: "./inputs/samples/binning/binning_T2K_FHC_MuLike.txt"
+    selectionCutStr: "EventType == 0"
+    dataSets: [ "HK" ]
+
+  - name: "FHC 1Re 0de"
+    isEnabled: true
+    binning: "./inputs/samples/binning/binning_T2K_FHC_ELike.txt"
+    selectionCutStr: "EventType == 1"
+    dataSets: [ "HK" ]
+
+  - name: "FHC 1Re 1de"
+    isEnabled: true
+    binning: "./inputs/samples/binning/binning_T2K_FHC_EPiLike.txt"
+    selectionCutStr: "EventType == 2"
+    dataSets: [ "HK" ]
+
+  ##########################
+  # nubar mode
+  ##########################
+
+  - name: "RHC 1R#mu"
+    isEnabled: true
+    binning: "./inputs/samples/binning/binning_T2K_RHC_MuLike.txt"
+    selectionCutStr: "EventType == 3"
+    dataSets: [ "HK" ]
+
+  - name: "RHC 1Re 0de"
+    isEnabled: true
+    binning: "./inputs/samples/binning/binning_T2K_RHC_ELike.txt"
+    selectionCutStr: "EventType == 4"
+    dataSets: [ "HK" ]

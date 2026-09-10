@@ -1,0 +1,154 @@
+####################################################################
+# Cross-section Parameters 
+####################################################################
+
+
+name: "Cross-Section Parameters"
+isEnabled: true
+enableThrowToyParameters: false
+
+parameterDefinitionFilePath: "${data_dir}/parameters/xsec/xsecCovHK.root"
+covarianceMatrix:         xsec_param_cov
+parameterNameList:        xsec_param_names
+parameterPriorValueList:  xsec_param_priors
+parameterLowerBoundsList: xsec_param_lower
+parameterUpperBoundsList: xsec_param_upper
+printDialSetSummary: true
+
+parameterDefinitions:
+
+  - name: "MaCCQE"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "MaCCQE"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "MaRES"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "MaRES"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "CA5RES"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "CA5RES"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "BgSclRES"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "BgSclRES"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "NucleonFSI_Double"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "NucleonFSI_Double"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "NucleonFSI_Elastic"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "NucleonFSI_Elastic"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "NucleonFSI_Single"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "NucleonFSI_Single"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "NucleonFSI_Total"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "NucleonFSI_Total"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "PionFSI_AbsProb"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "PionFSI_AbsProb"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "PionFSI_QELowMomProb"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "PionFSI_QELowMomProb"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "PionFSI_QEHighMomProb"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "PionFSI_QEHighMomProb"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "PionFSI_CExLowMomProb"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "PionFSI_CExLowMomProb"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "PionFSI_CExHighMomProb"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "PionFSI_CExHighMomProb"
+        applyOnDataSets: [ "HK" ]
+
+  # akima, not catmull-rom, and it is not a preference. This is the one dial
+  # whose knots are not evenly spaced: its low tweak sits at -0.9 sigma rather
+  # than -1, so the knots are 0.0111, 0.4515, 1.002, 1.5525, 2.103 - a first gap
+  # of 0.4404 and then 0.5505 three times.
+  #
+  # Catmull-rom cannot represent that. DialCollection.cpp:1122-1150 always builds
+  # a CompactSpline for it, and CompactSpline stores only the first knot and one
+  # spacing, so it evaluates the curve as though every knot were evenly spaced.
+  # With the default tolerance it prints the mismatch and carries on anyway,
+  # which means a silently wrong response - and CompactSpline.cpp:51-57 aborts
+  # instead on a release build.
+  #
+  # akima falls to the general branch, which checks the spacing and picks
+  # GeneralSpline for non-uniform knots. Like catmull-rom it takes its slopes
+  # from neighbouring points rather than from a global end condition, so it is
+  # the closest equivalent that stores the knot positions.
+  - name: "PionFSI_InelProb"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: akima
+        treeExpression: "PionFSI_InelProb"
+        applyOnDataSets: [ "HK" ]
+
+  - name: "SRCFrac_O"
+    isEnabled: true
+    dialSetDefinitions:
+      - dialType: Spline
+        options: catmull-rom, uniformity(1e-6)
+        treeExpression: "SRCFrac_O"
+        applyOnDataSets: [ "HK" ]

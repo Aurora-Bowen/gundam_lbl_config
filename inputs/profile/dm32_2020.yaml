@@ -1,0 +1,22 @@
+# Profile point: PMNS_DELTA_MASS_SQUARED_32 = 2.020E-3
+# See README.md in this folder for what the two blocks below do.
+
+fitterEngineConfig:
+  likelihoodInterfaceConfig:
+    propagatorConfig:
+
+      # Hold this one still.
+      parametersManagerConfig:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            parameterDefinitions:
+              - name: "PMNS_DELTA_MASS_SQUARED_32"
+                isFrozen: true
+
+      # Put it at the scan point.
+      parameterInjection:
+        parameterSetList:
+          - name: "Oscillation Parameters"
+            parameterValues:
+              - name: "PMNS_DELTA_MASS_SQUARED_32"
+                value: 2.020E-3

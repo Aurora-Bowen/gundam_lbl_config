@@ -1,0 +1,42 @@
+#########################################
+# Hyper-Kamiokande fake data
+#########################################
+#
+# Run from this directory, since every path below is relative to it:
+#   export data_dir=...                 # fakeselect_*.root and parameters/
+#   export NUOSCILLATOR_ROOT=...        # holding lib/libTabulatedNuOscillator.so
+#   gundamFitter -c config.yaml
+# Results land in outputs/ here, so $data_dir holds only generated data.
+#
+# Which parameter sets are in the fit is decided entirely in configParSet.yaml -
+# oscillation, and whichever systematics files are listed at the bottom of it.
+# Nothing here changes when one is added or removed.
+
+outputFolder: "./outputs/"
+minGundamVersion: 1.9.0
+
+fitterEngineConfig:
+
+  # Asimov fit: the data entry is the same events weighted by the oscillation
+  # probability FakeRecon computed at the generation point, so the fit should
+  # return those parameters and the prefit and postfit spectra should coincide.
+  # Nothing is thrown.
+  throwMcBeforeFit: false
+  generateSamplePlots: true
+
+  enableParamVariations: false
+  paramVariationsSigmas: [ -3, -1, 0, 1, 3 ]
+
+  minimizerConfig: "./inputs/fitter/configMinimizer.yaml"
+
+  likelihoodInterfaceConfig:
+    enableStatThrowInToys: false
+    enableEventMcThrow: false
+    gaussStatThrowInToys: false
+    dataSetList:            "./inputs/datasets/configDatasets.yaml"
+    propagatorConfig:       "./inputs/propagator/configPropagator.yaml"
+    plotGeneratorConfig:    "./inputs/output/configPlotGenerator.yaml"
+    jointProbabilityConfig:
+      type: BarlowLLH_BANFF_OA2021
+      allowZeroMcWhenZeroData: true
+      BBNoUpdateWeights: true

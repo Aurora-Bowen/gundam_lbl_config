@@ -1,0 +1,31 @@
+# One-dimensional grid in delta-CP. sin^2(theta23) and dm^2(32) are left free,
+# so Migrad profiles them rather than the grid.
+#
+# The 48 nodes are the same points as inputs/profile/dcp_*.yaml, so this is a
+# like-for-like comparison against those 48 independent fits.
+
+type: "GridSearch"
+
+minimizer: "Minuit2"
+algorithm: "Migrad"
+
+strategy: 0
+tolerance: 1
+print_level: 0
+
+warmStart: true
+serpentine: true
+coldRefitThreshold: 5.0
+
+firstNode: 0
+nNodes: 48
+
+saveParameterVector: true
+
+gridParameters:
+
+  - parameterSetName: "Oscillation Parameters"
+    parameterName: "PMNS_DELTA_CP"
+    min: -3.14159265359
+    max: 3.01069295969
+    nSteps: 48
